@@ -1,0 +1,197 @@
+#include <iostream>
+#include <cstdlib>
+#include <sstream>
+#include <cstring>
+#define WINVER 0x0500
+#include <windows.h>
+
+using namespace std;
+
+inline void pohybLavyKlikM(int x, int y) // moves mouse cursor to x, y coordinates and clicks left mouse button
+{
+    INPUT ms;
+    ms.type = INPUT_MOUSE;
+    ms.mi.time = 0;
+    ms.mi.dwExtraInfo = 0;
+    ms.mi.mouseData = 0;
+    Sleep(220);
+    ms.mi.dx = -1400;
+    ms.mi.dy = -1400;
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_MOVE;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+    ms.mi.dx = x;
+    ms.mi.dy = y;
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_MOVE;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+}
+inline void pohybPravyKlikM(int x, int y) // moves mouse cursor to x, y coordinates and clicks right mouse button
+{
+    INPUT ms;
+    ms.type = INPUT_MOUSE;
+    ms.mi.time = 0;
+    ms.mi.dwExtraInfo = 0;
+    ms.mi.mouseData = 0;
+    Sleep(220);
+    ms.mi.dx = -1400;
+    ms.mi.dy = -1400;
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_MOVE;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+    ms.mi.dx = x;
+    ms.mi.dy = y;
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_MOVE;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+    ms.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+    SendInput(1, &ms, sizeof(INPUT));
+    Sleep(220);
+}
+int main(int argc, char *argv[])
+{
+    int _redX = 0;
+    int _greenX = 0;
+    int _blueX = 0;
+    int _red = 0;
+    int _green = 0;
+    int _blue = 0;
+    bool endLoop = 0;
+    bool endLilLoop = 0;
+    bool koniec;
+    Sleep(5000);
+
+    for(int xp = 0; xp<60; xp++) // how many games should be played
+    {
+        koniec = 0;
+        pohybLavyKlikM(260, 21); // clicks the play button
+        pohybLavyKlikM(145, 63); // clicks the co-op vs. ai button
+        pohybLavyKlikM(273, 58); // clicks the 5v5 mode
+        pohybLavyKlikM(338, 74); // cliks the intermidiate bots button
+        pohybLavyKlikM(284, 244); // clicks the solo button
+        while(endLoop == 0)
+        {
+            do
+            {
+                pohybLavyKlikM(230, 160); // clicks the accept button position
+                pohybLavyKlikM(510, 3); // closes your web browser(there's a link, that opens your web browser, before the accept button appers)
+                HDC _hdc = GetDC(NULL); 
+                COLORREF _color = GetPixel(_hdc, 640, 466); // gets the colors of an unique pixel on the champ slect window  
+                _red = GetRValue(_color);
+                _green = GetGValue(_color);
+                _blue = GetBValue(_color);
+            }while(_red != 10 && _green != 22 && _blue != 36); // checks if the taken pixel is the pixel of the champ select window and not from the launcher screen
+            Sleep(2000);
+            pohybLavyKlikM(149, 70); // clicks the random champ button
+            pohybLavyKlikM(349, 178); // locks him
+            do
+            {
+                Sleep(100);
+                HDC _hdc = GetDC(NULL);
+                COLORREF _color = GetPixel(_hdc, 900, 50);
+                _red = GetRValue(_color);
+                _green = GetGValue(_color);
+                _blue = GetBValue(_color);
+                COLORREF _colorX = GetPixel(_hdc, 0, 0);
+                _redX = GetRValue(_colorX);
+                _greenX = GetGValue(_colorX);
+                _blueX = GetBValue(_colorX);
+                if(_redX == 33 && _greenX == 48 && _blueX == 50) // checks if the pixel is same as the loading screens, if yes ends both these loops
+                {
+                    endLilLoop = 1;
+                    endLoop = 1;
+                }
+                else if(_red == 188 && _green == 91 && _blue == 0) // checks if the pixel is same as an one from the launcher screen, if yes does the does again
+                {
+                    endLilLoop = 1;
+                } // otherwise wait for one of those pixels
+            }while(endLilLoop == 0);
+            endLilLoop = 0;
+        }
+        endLoop = 0;
+        Sleep(130000); // waits approximately untill the game starts
+        while(koniec == 0)
+        {
+            pohybPravyKlikM(504, 222); // moves to one side of the map
+            for(int i = 0; i < 5; i++)
+            {
+                HDC _hdc = GetDC(NULL);
+                for(int j = 640; j<648; j++)
+                {
+                    pohybLavyKlikM(50, 290);
+                    pohybLavyKlikM(170, 35);
+                    pohybLavyKlikM(120, 184);
+                    pohybLavyKlikM(155, 115);
+                    pohybLavyKlikM(410, 170);
+                    pohybLavyKlikM(450, 18); // all these moves are trying to buy botrk
+                    COLORREF _color = GetPixel(_hdc, j, 466);
+                    _red = GetRValue(_color);
+                    _green = GetGValue(_color);
+                    _blue = GetBValue(_color);
+                    if(_red != 255 || _green != 142 || _blue != 90) 
+                    {
+                        break;
+                    }
+                    else if(_red == 255 && _green == 142 && _blue == 90 && j == 647) // if those colors are the colors from the unique end of game screen, ends the loop
+                    {
+                        koniec = 1;
+                    }
+                }
+            }
+            pohybPravyKlikM(445, 285); //moves to the other side of the map
+            if(koniec == 0) // the same as above
+            {
+                for(int i = 0; i < 5; i++)
+                {
+                    HDC _hdc = GetDC(NULL);
+                    for(int j = 640; j<648; j++)
+                    {
+                        pohybLavyKlikM(50, 290);
+                        pohybLavyKlikM(170, 35);
+                        pohybLavyKlikM(120, 184);
+                        pohybLavyKlikM(155, 115);
+                        pohybLavyKlikM(410, 170);
+                        pohybLavyKlikM(450, 18);
+                        COLORREF _color = GetPixel(_hdc, j, 466);
+                        _red = GetRValue(_color);
+                        _green = GetGValue(_color);
+                        _blue = GetBValue(_color);
+                        if(_red != 255 || _green != 142 || _blue != 90)
+                        {
+                            break;
+                        }
+                        else if(_red == 255 && _green == 142 && _blue == 90 && j == 647)
+                        {
+                            koniec = 1;
+                        }
+                    }
+                }
+            }
+        }
+        Sleep(1000);
+        pohybLavyKlikM(260, 182); // if found the unique pixels, clicks continue
+        Sleep(35000); // wait untill the after game screen
+        pohybLavyKlikM(340, 240); // clicks the home button
+        Sleep(13000); // wait, since the home click lastes a little too long
+// and doing it again
+    }
+    return 0;
+}
+
+/*KNOWN BUGS - 1 of 25 games got lagged in a loop, the most possible reason is just that my internet crashed, but I'm not sure
+             - if you'd get too many reports for negative attitude or something similiar, the code won't click the ok button since I don't know the coordinates of the button, therefore I didn't have the problem yet, I just know there's such a possibylitie
+  I'm sorry for my possible grammar and spelling issues, english isn't my native language. Since this is my first github code I'd really apreciate any
+  feedback, some advices how to improve my code or whatever else :)*/ 
